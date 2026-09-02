@@ -90,6 +90,7 @@ npm run discover -- \
 $env:ROTE_HEADLESS = "false"
 npm run discover -- --target "http://localhost:8083/altoromutual/" --goal "Sign in to the challenged AltoroJ surface with synthetic username jsmith and password demo1234, inspect account 800002 in the nested legacy console, visually read the canvas-rendered Available balance, and return it as output balance." --record altoroj-final-discovered-account-balance --application AltoroJ --success-text "Available balance" --success-kind visual-text-visible --output-label "Available balance" --output-kind visual-text-near-label --input username=jsmith --input password=demo1234 --input accountId=800002 --evidence altoroj-final-openai-discovery
 ```
+This writes `v1` of the capability, replacing the committed copy. Pass a different `--record` name if you want to keep both.
 
 The committed discovery log is `evidence/altoroj-final-openai-discovery.json`. It holds no raw model transcript and no persisted password. `evidence/altoroj-final-artifact-review.json` records the parameterisation and iframe/canvas extraction refinement applied after the first fail-closed replay.
 
