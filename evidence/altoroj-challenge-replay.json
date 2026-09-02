@@ -1,0 +1,38 @@
+{
+  "runType": "challenge-surface-summary",
+  "note": "Hand-written summary of how the challenge surface is driven. Live run logs are the authoritative record; see the files named under 'runLogs'.",
+  "surface": "AltoroJ challenge variant",
+  "url": "http://localhost:8083/altoromutual/",
+  "capability": "capabilities/altoroj-challenge-account-balance/v2.json",
+  "recordedSteps": 7,
+  "discovery": {
+    "modelObservation": "multimodal screenshot plus DOM/frame control descriptors",
+    "prefixSelectorsUsedAsFallbacks": [
+      "[id^=\"member_\"]",
+      "[id^=\"access_\"]",
+      "[id^=\"continue_\"]",
+      "[id^=\"record_\"]",
+      "[id^=\"inspect_\"]"
+    ],
+    "frameSelector": "iframe[src=\"challengeAccount.jsp\"]",
+    "note": "Per-session id suffixes are deliberately ignored; the primary locators are semantic role/name/label signals and these prefix selectors are last-resort fallbacks."
+  },
+  "replay": {
+    "openAiKeyPresent": false,
+    "modelRequiredForReplay": false,
+    "onlineOcrServiceRequired": false,
+    "extraction": {
+      "kind": "visual-text-near-label",
+      "label": "Available balance",
+      "frameCss": "iframe[src=\"challengeAccount.jsp\"]",
+      "visualCss": "canvas",
+      "engine": "Tesseract.js with local English model"
+    }
+  },
+  "runLogs": {
+    "discovery": "evidence/altoroj-final-openai-discovery.json",
+    "successfulReplay": "evidence/altoroj-repeat-replay-a.json",
+    "repeatedReplay": "evidence/altoroj-repeat-replay-b.json",
+    "handoff": "evidence/altoroj-handoff-live.json"
+  }
+}

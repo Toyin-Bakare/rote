@@ -1,0 +1,41 @@
+{
+  "runType": "deterministic-replay",
+  "runId": "replay-2026-09-01T19-30-45-866Z",
+  "target": "http://localhost:8083/altoromutual/",
+  "capability": "capabilities/altoroj-challenge-account-balance/v2.json",
+  "inputs": {
+    "username": "jsmith",
+    "password": "[REDACTED]",
+    "accountId": "888888"
+  },
+  "stepSequence": [
+    "step-01",
+    "step-02",
+    "step-03",
+    "step-04",
+    "step-05",
+    "step-06",
+    "step-07"
+  ],
+  "result": {
+    "status": "blocked",
+    "stepId": "final-checkpoint",
+    "stepIndex": 7,
+    "errorCode": "HUMAN_INTERVENTION_REQUIRED",
+    "expected": "The AltoroJ verification requires a human operator in the same live session.",
+    "observed": "Matched text-visible checkpoint 'Operator Verification Required'",
+    "evidenceRef": "evidence/failures/replay-2026-09-01t19-30-45-866z/final-checkpoint-human_intervention_required"
+  },
+  "session": {
+    "owner": "automation",
+    "paused": false,
+    "timeline": [
+      {
+        "at": "2026-09-01T19:31:00.546Z",
+        "actor": "automation",
+        "event": "run-started",
+        "detail": "Automation acquired the live session lease"
+      }
+    ]
+  }
+}

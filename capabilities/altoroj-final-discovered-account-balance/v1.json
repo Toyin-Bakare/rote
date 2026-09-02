@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "1.0",
+  "name": "altoroj-final-discovered-account-balance",
+  "version": 1,
+  "description": "Sign in to the challenged AltoroJ surface using synthetic username {{username}} and synthetic password {{password}}, enter account record {{accountId}} in the nested legacy account console, inspect it, visually read the canvas-rendered Available balance, and return it as output balance.",
+  "target": {
+    "application": "AltoroJ",
+    "entryUrl": "http://localhost:8083/altoromutual/"
+  },
+  "inputs": [
+    {
+      "name": "username",
+      "type": "string",
+      "description": "Synthetic discovery input for username",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "password",
+      "type": "string",
+      "description": "Synthetic discovery input for password",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "accountId",
+      "type": "string",
+      "description": "Synthetic discovery input for accountId",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "outputs": [
+    {
+      "name": "balance",
+      "type": "number",
+      "description": "Value extracted for balance",
+      "required": true,
+      "sensitive": false,
+      "extraction": {
+        "kind": "visual-text-near-label",
+        "label": "Available balance",
+        "frameCss": "iframe[src=\"challengeAccount.jsp\"]",
+        "visualCss": "canvas"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-01",
+      "description": "The banking sign-in page is the required first step before accessing the account console.",
+      "action": {
+        "type": "click",
+        "control": {
+          "role": "link",
+          "accessibleName": "Sign In",
+          "text": "Sign In",
+          "nearbyText": "ONLINE BANKING LOGIN",
+          "fallbackCss": "#LoginLink",
+          "robustnessRationale": "Use the uniquely named Sign In link provided in the current page controls."
+        }
+      }
+    },
+    {
+      "id": "step-02",
+      "description": "The sign-in form is visible and the username field is empty, so enter the provided synthetic username first.",
+      "action": {
+        "type": "type",
+        "control": {
+          "role": "textbox",
+          "label": "Username",
+          "nearbyText": "Online Banking Login",
+          "fallbackCss": "[id^=\"member_\"]",
+          "robustnessRationale": "The username textbox is the first empty credential field, identified by its nearby visible label and provided controlled selector."
+        },
+        "value": "{{username}}"
+      }
+    },
+    {
+      "id": "step-03",
+      "description": "The username is already populated and the password field is the next unmet sign-in condition.",
+      "action": {
+        "type": "type",
+        "control": {
+          "role": "textbox",
+          "label": "Password",
+          "nearbyText": "Password:",
+          "fallbackCss": "[id^=\"access_\"]",
+          "robustnessRationale": "The password textbox is empty and is identified by its nearby Password label with the provided controlled fallback."
+        },
+        "value": "{{password}}"
+      }
+    },
+    {
+      "id": "step-04",
+      "description": "The login credentials are already present, so submit the form to continue.",
+      "action": {
+        "type": "click",
+        "control": {
+          "role": "button",
+          "nearbyText": "Online Banking Login",
+          "fallbackCss": "[id^=\"continue_\"]",
+          "robustnessRationale": "The only login submit button is identifiable by its controlled CSS fallback and the credentials are already set."
+        }
+      }
+    },
+    {
+      "id": "step-05",
+      "description": "Enter the caller-supplied account record in the nested legacy console.",
+      "action": {
+        "type": "type",
+        "control": {
+          "role": "textbox",
+          "nearbyText": "Account record",
+          "frameCss": "iframe[src=\"challengeAccount.jsp\"]",
+          "fallbackCss": "[id^=\"record_\"]",
+          "robustnessRationale": "The textbox is anchored by the Account record label; the generated identifier suffix is deliberately ignored."
+        },
+        "value": "{{accountId}}"
+      }
+    },
+    {
+      "id": "step-06",
+      "description": "Inspect the requested account record.",
+      "action": {
+        "type": "click",
+        "control": {
+          "role": "button",
+          "nearbyText": "Account record",
+          "frameCss": "iframe[src=\"challengeAccount.jsp\"]",
+          "fallbackCss": "[id^=\"inspect_\"]",
+          "robustnessRationale": "The only button in the nested legacy account console is the inspect action."
+        }
+      }
+    }
+  ],
+  "success": {
+    "kind": "visual-text-visible",
+    "expected": "Available balance"
+  },
+  "knownOutcomes": []
+}

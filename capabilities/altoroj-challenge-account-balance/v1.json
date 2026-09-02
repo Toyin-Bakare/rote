@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "1.0",
+  "name": "altoroj-challenge-account-balance",
+  "version": 1,
+  "description": "Sign in to the Altoro Mutual challenge using synthetic username {{username}} and password {{password}}, inspect account {{accountId}} inside the legacy account console, visually read the canvas-rendered Available balance, and return the numeric value as extracted output named balance.",
+  "target": {
+    "application": "AltoroJ Challenge",
+    "entryUrl": "http://localhost:8083/altoromutual/"
+  },
+  "inputs": [
+    {
+      "name": "username",
+      "type": "string",
+      "description": "Synthetic discovery input for username",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "password",
+      "type": "string",
+      "description": "Synthetic discovery input for password",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "accountId",
+      "type": "string",
+      "description": "Synthetic discovery input for accountId",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "outputs": [
+    {
+      "name": "balance",
+      "type": "number",
+      "description": "Value extracted for balance",
+      "required": true,
+      "sensitive": false,
+      "extraction": {
+        "kind": "visual-text-near-label",
+        "label": "Available balance",
+        "frameCss": "iframe[src=\"challengeAccount.jsp\"]",
+        "visualCss": "canvas"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-01",
+      "description": "The landing page shows a Sign In link, which is the next step to reach the authentication form.",
+      "action": {
+        "type": "click",
+        "control": {
+          "role": "link",
+          "accessibleName": "Sign In",
+          "text": "Sign In",
+          "nearbyText": "Sign In | Contact Us | Feedback | Search",
+          "fallbackCss": "#LoginLink",
+          "robustnessRationale": "Unique visible semantic link text identifies the sign-in navigation."
+        }
+      }
+    },
+    {
+      "id": "step-02",
+      "description": "The username field is empty and must be completed before authentication can proceed.",
+      "action": {
+        "type": "type",
+        "control": {
+          "role": "textbox",
+          "label": "Username",
+          "nearbyText": "Online Banking Login",
+          "fallbackCss": "[id^=\"member_\"]",
+          "robustnessRationale": "This is the first empty credential textbox in the login form, identified by its adjacent Username label."
+        },
+        "value": "{{username}}"
+      }
+    },
+    {
+      "id": "step-03",
+      "description": "Username is already populated and the password field is the next unmet sign-in condition.",
+      "action": {
+        "type": "type",
+        "control": {
+          "role": "textbox",
+          "label": "Password",
+          "nearbyText": "Password:",
+          "fallbackCss": "[id^=\"access_\"]",
+          "robustnessRationale": "The password textbox is empty and identified by its nearby Password label; the provided CSS is a controlled fallback."
+        },
+        "value": "{{password}}"
+      }
+    },
+    {
+      "id": "step-04",
+      "description": "The login credentials are already populated, so submit the form to proceed to the account console.",
+      "action": {
+        "type": "click",
+        "control": {
+          "role": "button",
+          "nearbyText": "Online Banking Login",
+          "fallbackCss": "[id^=\"continue_\"]",
+          "robustnessRationale": "The only button in the populated Online Banking Login form; use the provided controlled CSS fallback."
+        }
+      }
+    },
+    {
+      "id": "step-05",
+      "description": "Enter the requested synthetic account record in the nested legacy console.",
+      "action": {
+        "type": "type",
+        "control": {
+          "role": "textbox",
+          "nearbyText": "Account record",
+          "frameCss": "iframe[src=\"challengeAccount.jsp\"]",
+          "fallbackCss": "[id^=\"record_\"]",
+          "robustnessRationale": "The record textbox is anchored by its table label; its changing UUID suffix is deliberately ignored."
+        },
+        "value": "{{accountId}}"
+      }
+    },
+    {
+      "id": "step-06",
+      "description": "Submit the requested record for inspection inside the legacy console.",
+      "action": {
+        "type": "click",
+        "control": {
+          "role": "button",
+          "nearbyText": "Account record {{accountId}} Savings",
+          "frameCss": "iframe[src=\"challengeAccount.jsp\"]",
+          "fallbackCss": "[id^=\"inspect_\"]",
+          "robustnessRationale": "The only button in the nested legacy account console is the inspect action for the selected account."
+        }
+      }
+    },
+    {
+      "id": "step-07",
+      "description": "Allow the nested legacy result document, including deliberately delayed states, to settle before classification.",
+      "action": {
+        "type": "wait",
+        "milliseconds": 1600
+      }
+    }
+  ],
+  "success": {
+    "kind": "visual-text-visible",
+    "expected": "Available balance"
+  },
+  "knownOutcomes": [
+    {
+      "code": "VALIDATION_ERROR",
+      "resultType": "business_outcome",
+      "checkpoint": { "kind": "text-visible", "expected": "Validation Error" },
+      "description": "The supplied AltoroJ account record is not a six-digit number."
+    },
+    {
+      "code": "ACCOUNT_NOT_FOUND",
+      "resultType": "business_outcome",
+      "checkpoint": { "kind": "text-visible", "expected": "Account Not Found" },
+      "description": "No AltoroJ account matches the requested record."
+    },
+    {
+      "code": "PERMISSION_DENIED",
+      "resultType": "blocked",
+      "checkpoint": { "kind": "text-visible", "expected": "Permission Denied" },
+      "description": "The authenticated AltoroJ operator cannot view this account."
+    },
+    {
+      "code": "SESSION_EXPIRED",
+      "resultType": "business_outcome",
+      "checkpoint": { "kind": "text-visible", "expected": "Session Expired" },
+      "description": "The AltoroJ session expired before account details could be read."
+    },
+    {
+      "code": "ACCOUNT_SERVICE_UNAVAILABLE",
+      "resultType": "blocked",
+      "checkpoint": { "kind": "text-visible", "expected": "Account Service Unavailable" },
+      "description": "The delayed AltoroJ account service failed to load."
+    },
+    {
+      "code": "HUMAN_INTERVENTION_REQUIRED",
+      "resultType": "blocked",
+      "checkpoint": { "kind": "text-visible", "expected": "Operator Verification Required" },
+      "description": "The AltoroJ verification requires a human operator in the same live session."
+    }
+  ]
+}

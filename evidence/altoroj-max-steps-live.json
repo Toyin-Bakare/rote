@@ -1,0 +1,10 @@
+{
+  "runType": "openai-guided-discovery",
+  "model": "gpt-5.6-terra",
+  "target": "http://localhost:8083/altoromutual/",
+  "syntheticDataOnly": true,
+  "result": "stopped",
+  "goal": "Sign in to AltoroJ with synthetic username jsmith and password [REDACTED], inspect account 800002 in the nested console, and return the visible balance.",
+  "stopReason": "Discovery stopped after maxSteps=2",
+  "evidenceRef": "evidence/failures/discovery-2026-09-01t18-48-52-948z/discovery-discovery_stopped"
+}

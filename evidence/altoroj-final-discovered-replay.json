@@ -1,0 +1,37 @@
+{
+  "runType": "deterministic-replay",
+  "runId": "replay-2026-09-01T19-30-45-417Z",
+  "target": "http://localhost:8083/altoromutual/",
+  "capability": "capabilities/altoroj-final-discovered-account-balance/v1.json",
+  "inputs": {
+    "username": "jsmith",
+    "password": "[REDACTED]",
+    "accountId": "800002"
+  },
+  "stepSequence": [
+    "step-01",
+    "step-02",
+    "step-03",
+    "step-04",
+    "step-05",
+    "step-06"
+  ],
+  "result": {
+    "status": "success",
+    "outputs": {
+      "balance": 10000.42
+    }
+  },
+  "session": {
+    "owner": "automation",
+    "paused": false,
+    "timeline": [
+      {
+        "at": "2026-09-01T19:31:00.548Z",
+        "actor": "automation",
+        "event": "run-started",
+        "detail": "Automation acquired the live session lease"
+      }
+    ]
+  }
+}

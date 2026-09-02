@@ -1,0 +1,8 @@
+{
+  "runType": "discovery-stop-condition-test",
+  "target": "AltoroJ",
+  "condition": "dead-end",
+  "configuration": { "sameObservationAndActionRepeatThreshold": 2 },
+  "result": "Discovery stopped: dead-end detected (same observation and action repeated)",
+  "test": "tests/discovery-runner.test.ts"
+}

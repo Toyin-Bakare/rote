@@ -1,0 +1,32 @@
+{
+  "runType": "deterministic-replay",
+  "runId": "replay-2026-09-01T18-48-23-392Z",
+  "target": "http://localhost:8083/altoromutual/",
+  "capability": "capabilities/altoroj-challenge-account-balance/v2.json",
+  "inputs": {
+    "username": "jsmith",
+    "password": "[REDACTED]",
+    "accountId": "403403"
+  },
+  "result": {
+    "status": "blocked",
+    "stepId": "final-checkpoint",
+    "stepIndex": 7,
+    "errorCode": "PERMISSION_DENIED",
+    "expected": "The authenticated AltoroJ operator cannot view this account.",
+    "observed": "Matched text-visible checkpoint 'Permission Denied'",
+    "evidenceRef": "evidence/failures/replay-2026-09-01t18-48-23-392z/final-checkpoint-permission_denied"
+  },
+  "session": {
+    "owner": "automation",
+    "paused": false,
+    "timeline": [
+      {
+        "at": "2026-09-01T18:48:35.478Z",
+        "actor": "automation",
+        "event": "run-started",
+        "detail": "Automation acquired the live session lease"
+      }
+    ]
+  }
+}

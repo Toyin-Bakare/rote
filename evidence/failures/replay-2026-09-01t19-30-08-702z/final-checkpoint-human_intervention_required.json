@@ -1,0 +1,9 @@
+{
+  "capturedAt": "2026-09-01T19:30:19.409Z",
+  "stepId": "final-checkpoint",
+  "errorCode": "HUMAN_INTERVENTION_REQUIRED",
+  "url": "http://localhost:8083/altoromutual/bank/main.jsp",
+  "title": "Altoro Mutual",
+  "screenshot": "final-checkpoint-human_intervention_required.png",
+  "domSnapshot": "final-checkpoint-human_intervention_required.html"
+}

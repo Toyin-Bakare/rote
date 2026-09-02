@@ -1,0 +1,10 @@
+{
+  "runType": "artifact-human-review",
+  "sourceDiscovery": "evidence/altoroj-final-openai-discovery.json",
+  "artifact": "capabilities/altoroj-final-discovered-account-balance/v1.json",
+  "changes": [
+    "Parameterized the iframe account-record field with {{accountId}} because discovery observed the desired default value.",
+    "Scoped visual extraction to iframe[src=\"challengeAccount.jsp\"] and its canvas after the first replay exposed ambiguous full-page OCR."
+  ],
+  "reason": "Capabilities are reviewable artifacts; deterministic replay remains model-free and fails closed when extraction is ambiguous."
+}

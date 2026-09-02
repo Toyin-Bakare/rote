@@ -1,0 +1,9 @@
+{
+  "capturedAt": "2026-09-01T18:48:39.335Z",
+  "stepId": "final-checkpoint",
+  "errorCode": "PERMISSION_DENIED",
+  "url": "http://localhost:8083/altoromutual/bank/main.jsp",
+  "title": "Altoro Mutual",
+  "screenshot": "final-checkpoint-permission_denied.png",
+  "domSnapshot": "final-checkpoint-permission_denied.html"
+}

@@ -1,0 +1,50 @@
+{
+  "runType": "openai-guided-discovery",
+  "model": "gpt-5.6-terra",
+  "target": "http://localhost:8083/altoromutual/",
+  "syntheticDataOnly": true,
+  "result": "success",
+  "goal": "Sign in to the challenged AltoroJ surface using synthetic username jsmith and synthetic password [REDACTED], enter account record 800002 in the nested legacy account console, inspect it, visually read the canvas-rendered Available balance, and return it as output balance.",
+  "recordedCapability": "E:\\Assignment_Rote\\capabilities\\altoroj-final-discovered-account-balance\\v1.json",
+  "steps": [
+    {
+      "index": 1,
+      "action": "click",
+      "reason": "The banking sign-in page is the required first step before accessing the account console.",
+      "goalComplete": false
+    },
+    {
+      "index": 2,
+      "action": "type",
+      "reason": "The sign-in form is visible and the username field is empty, so enter the provided synthetic username first.",
+      "goalComplete": false
+    },
+    {
+      "index": 3,
+      "action": "type",
+      "reason": "The username is already populated and the password field is the next unmet sign-in condition.",
+      "goalComplete": false
+    },
+    {
+      "index": 4,
+      "action": "click",
+      "reason": "The login credentials are already present, so submit the form to continue.",
+      "goalComplete": false
+    },
+    {
+      "index": 5,
+      "action": "click",
+      "reason": "The legacy account record field is already populated, so inspect the requested record next.",
+      "goalComplete": false
+    },
+    {
+      "index": 6,
+      "action": null,
+      "reason": "The nested legacy console is open for the requested account, and the canvas-rendered Available balance is visually readable.",
+      "goalComplete": true,
+      "extractedOutputs": {
+        "balance": "$10000.42"
+      }
+    }
+  ]
+}

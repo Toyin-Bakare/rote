@@ -1,0 +1,6 @@
+{
+  "allowedHosts": ["{{targetHost}}"],
+  "allowedRoutePrefixes": ["{{targetPath}}"],
+  "allowedActions": ["navigate", "click", "type", "wait"],
+  "riskyControlPattern": "open|transfer|withdraw|wire|approve|submit|confirm|delete|close"
+}

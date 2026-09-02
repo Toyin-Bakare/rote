@@ -1,0 +1,24 @@
+{
+  "capturedAt": "2026-08-30",
+  "surface": "Submitted AltoroJ target",
+  "url": "http://localhost:8083/altoromutual/",
+  "container": "submission-altoroj",
+  "verification": {
+    "idsChangedBetweenVisits": true,
+    "firstObservedLoginFormId": "login_4412788fc1",
+    "secondObservedLoginFormId": "login_989dcfc55d",
+    "authenticatedIframeCount": 1,
+    "canvasCountAfterAccountSelection": 1,
+    "visibleFrameText": "Account 800002 is ready for visual verification.",
+    "canvasTextNode": "",
+    "accessibilityContainsBalanceValue": false,
+    "accessibilityContainsBalanceLabel": false
+  },
+  "requirements": {
+    "changingIdentifiers": "met",
+    "authenticatedNestedFrame": "met",
+    "nonSemanticLegacyComposition": "met",
+    "visualOnlyObservationTarget": "met"
+  },
+  "result": "Frame-aware observation/action and targeted visual extraction were implemented and replayed successfully."
+}

@@ -1,0 +1,36 @@
+{
+  "runType": "deterministic-replay",
+  "runId": "replay-2026-09-01T18-47-50-234Z",
+  "target": "http://localhost:8083/altoromutual/",
+  "capability": "capabilities/altoroj-challenge-account-balance/v2.json",
+  "inputs": {
+    "username": "jsmith",
+    "password": "[REDACTED]",
+    "accountId": "777777"
+  },
+  "result": {
+    "status": "success",
+    "outputs": {
+      "balance": 10000.42
+    },
+    "recoveries": [
+      {
+        "code": "MAINTENANCE_NOTICE",
+        "attempts": 1,
+        "detail": "A dismissable maintenance interstitial covered the account result; automation dismisses it and continues."
+      }
+    ]
+  },
+  "session": {
+    "owner": "automation",
+    "paused": false,
+    "timeline": [
+      {
+        "at": "2026-09-01T18:48:00.962Z",
+        "actor": "automation",
+        "event": "run-started",
+        "detail": "Automation acquired the live session lease"
+      }
+    ]
+  }
+}

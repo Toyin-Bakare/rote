@@ -1,0 +1,8 @@
+services:
+  altoroj:
+    build:
+      context: ./target/altoroj
+    ports:
+      - "8083:8080"
+    restart: unless-stopped
+

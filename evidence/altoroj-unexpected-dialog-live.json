@@ -1,0 +1,28 @@
+{
+  "runType": "deterministic-replay",
+  "runId": "replay-2026-09-01T18-48-23-376Z",
+  "target": "http://localhost:8083/altoromutual/",
+  "capability": "capabilities/altoroj-challenge-account-balance/v2.json",
+  "inputs": {
+    "username": "jsmith",
+    "password": "[REDACTED]",
+    "accountId": "555555"
+  },
+  "result": {
+    "status": "business_outcome",
+    "code": "UNPOSTED_TRANSACTION_HOLD",
+    "detail": "The account carries an unposted transaction hold, announced by a browser dialog; the balance is not authoritative."
+  },
+  "session": {
+    "owner": "automation",
+    "paused": false,
+    "timeline": [
+      {
+        "at": "2026-09-01T18:48:35.470Z",
+        "actor": "automation",
+        "event": "run-started",
+        "detail": "Automation acquired the live session lease"
+      }
+    ]
+  }
+}

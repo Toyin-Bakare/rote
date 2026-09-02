@@ -1,0 +1,87 @@
+{
+  "runType": "deterministic-replay",
+  "runId": "replay-2026-09-01T19-30-08-702Z",
+  "target": "http://localhost:8083/altoromutual/",
+  "capability": "capabilities/altoroj-challenge-account-balance/v2.json",
+  "inputs": {
+    "username": "jsmith",
+    "password": "[REDACTED]",
+    "accountId": "888888"
+  },
+  "stepSequence": [
+    "step-01",
+    "step-02",
+    "step-03",
+    "step-04",
+    "step-05",
+    "step-06",
+    "step-07"
+  ],
+  "result": {
+    "status": "success",
+    "outputs": {
+      "balance": 10000.42
+    }
+  },
+  "interventionRequest": {
+    "capability": "capabilities/altoroj-challenge-account-balance/v2.json",
+    "goal": "Sign in to the Altoro Mutual challenge using synthetic username {{username}} and password {{password}}, inspect account {{accountId}} inside the legacy account console, visually read the canvas-rendered Available balance, and return the numeric value as extracted output named balance.",
+    "code": "HUMAN_INTERVENTION_REQUIRED",
+    "reason": "The AltoroJ verification requires a human operator in the same live session.",
+    "stoppedAtStep": {
+      "id": "final-checkpoint",
+      "index": 7
+    },
+    "observed": "Matched text-visible checkpoint 'Operator Verification Required'",
+    "resolutionCheckpoint": "Operator Verification Required",
+    "evidenceRef": "evidence/failures/replay-2026-09-01t19-30-08-702z/final-checkpoint-human_intervention_required"
+  },
+  "session": {
+    "owner": "automation",
+    "paused": false,
+    "timeline": [
+      {
+        "at": "2026-09-01T19:30:15.125Z",
+        "actor": "automation",
+        "event": "run-started",
+        "detail": "Automation acquired the live session lease"
+      },
+      {
+        "at": "2026-09-01T19:30:19.446Z",
+        "actor": "automation",
+        "event": "paused",
+        "detail": "HUMAN_INTERVENTION_REQUIRED: The AltoroJ verification requires a human operator in the same live session. (step final-checkpoint #7)"
+      },
+      {
+        "at": "2026-09-01T19:30:19.446Z",
+        "actor": "human",
+        "event": "control-transferred",
+        "detail": "Operator took control of the same live session at step final-checkpoint; context evidence/failures/replay-2026-09-01t19-30-08-702z/final-checkpoint-human_intervention_required"
+      },
+      {
+        "at": "2026-09-01T19:30:21.997Z",
+        "actor": "human",
+        "event": "action",
+        "detail": "Operator resolved 'Operator Verification Required' in the live session"
+      },
+      {
+        "at": "2026-09-01T19:30:22.003Z",
+        "actor": "automation",
+        "event": "control-transferred",
+        "detail": "Operator returned the live session after resolving the condition"
+      },
+      {
+        "at": "2026-09-01T19:30:22.003Z",
+        "actor": "automation",
+        "event": "resumed",
+        "detail": "Automation resumed the paused replay"
+      },
+      {
+        "at": "2026-09-01T19:30:25.259Z",
+        "actor": "automation",
+        "event": "run-completed",
+        "detail": "Resumed replay finished with status=success"
+      }
+    ]
+  }
+}

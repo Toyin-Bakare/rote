@@ -1,0 +1,37 @@
+{
+  "runType": "deterministic-replay",
+  "runId": "replay-2026-09-01T19-30-45-421Z",
+  "target": "http://localhost:8083/altoromutual/",
+  "capability": "capabilities/altoroj-challenge-account-balance/v2.json",
+  "inputs": {
+    "username": "jsmith",
+    "password": "[REDACTED]",
+    "accountId": "408408"
+  },
+  "stepSequence": [
+    "step-01",
+    "step-02",
+    "step-03",
+    "step-04",
+    "step-05",
+    "step-06",
+    "step-07"
+  ],
+  "result": {
+    "status": "business_outcome",
+    "code": "SESSION_EXPIRED",
+    "detail": "The AltoroJ session expired before account details could be read."
+  },
+  "session": {
+    "owner": "automation",
+    "paused": false,
+    "timeline": [
+      {
+        "at": "2026-09-01T19:31:00.630Z",
+        "actor": "automation",
+        "event": "run-started",
+        "detail": "Automation acquired the live session lease"
+      }
+    ]
+  }
+}

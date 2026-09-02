@@ -1,0 +1,8 @@
+{
+  "runType": "discovery-stop-condition-test",
+  "target": "AltoroJ",
+  "condition": "timeout",
+  "configuration": { "timeoutMs": 1 },
+  "result": "Discovery stopped after timeoutMs=1",
+  "test": "tests/discovery-runner.test.ts"
+}

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.playwright-browsers/
+.tmp/
+.npm-cache/
+.env
+test-results/
+playwright-report/
+evidence/runtime/
+*.log
+.DS_Store
