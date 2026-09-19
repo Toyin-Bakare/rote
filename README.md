@@ -37,6 +37,8 @@ No host Java installation is required. Replay uses local OCR and needs no OpenAI
 
 Commands are given for bash first, then PowerShell. Everything else is identical.
 
+**macOS / Linux (bash)**
+
 ```bash
 docker compose up --build -d
 npm install
@@ -45,6 +47,8 @@ npx playwright install chromium
 npm run check
 npm test
 ```
+
+**Windows (PowerShell)**
 
 ```powershell
 docker compose up --build -d
@@ -74,6 +78,8 @@ For discovery only, copy `.env.example` to `.env` and set `OPENAI_API_KEY`. Neve
 
 Runs the OpenAI-driven observe → decide → act loop against the live target and records the capability.
 
+**macOS / Linux (bash)**
+
 ```bash
 export ROTE_HEADLESS=false
 npm run discover -- \
@@ -85,6 +91,8 @@ npm run discover -- \
   --input username=jsmith --input password=demo1234 --input accountId=800002 \
   --evidence altoroj-final-openai-discovery
 ```
+
+**Windows (PowerShell)**
 
 ```powershell
 $env:ROTE_HEADLESS = "false"
@@ -98,12 +106,16 @@ The committed discovery log is `evidence/altoroj-final-openai-discovery.json`. I
 
 Replay never calls OpenAI. It executes the committed artifact with fixed steps, checks the visual success condition, and reads the canvas-rendered balance through local OCR.
 
+**macOS / Linux (bash)**
+
 ```bash
 npm run replay -- \
   --capability capabilities/altoroj-final-discovered-account-balance/v1.json \
   --input username=jsmith --input password=demo1234 --input accountId=800002 \
   --evidence altoroj-reviewer-replay
 ```
+
+**Windows (PowerShell)**
 
 ```powershell
 npm run replay -- --capability capabilities/altoroj-final-discovered-account-balance/v1.json --input username=jsmith --input password=demo1234 --input accountId=800002 --evidence altoroj-reviewer-replay
@@ -137,6 +149,8 @@ Every blocked result writes a screenshot, a DOM snapshot of the main document an
 
 ## Same-session human handoff
 
+**macOS / Linux (bash)**
+
 ```bash
 export ROTE_HEADLESS=false
 npm run replay -- \
@@ -144,6 +158,8 @@ npm run replay -- \
   --input username=jsmith --input password=demo1234 --input accountId=888888 \
   --handoff --evidence altoroj-handoff
 ```
+
+**Windows (PowerShell)**
 
 ```powershell
 $env:ROTE_HEADLESS = "false"
@@ -157,6 +173,8 @@ The intervention request is printed before control transfers: capability, goal, 
 Discovery accepts `--max-steps` and `--timeout-ms`, and stops when the same observation and action repeat. Every action crosses the actuator, which asserts the session lease, enforces the host/route/action allowlist, and blocks risky controls. Artifacts, logs and failure evidence carry synthetic, redacted values only.
 
 ## Stop the target
+
+**macOS / Linux (bash)**
 
 ```bash
 docker compose down
