@@ -126,7 +126,10 @@ npm run replay -- \
 **Windows (PowerShell)**
 
 ```powershell
-npm run replay -- --capability capabilities/altoroj-final-discovered-account-balance/v1.json --input username=jsmith --input password=demo1234 --input accountId=800002 --evidence altoroj-reviewer-replay
+npm run replay -- `
+  --capability capabilities/altoroj-final-discovered-account-balance/v1.json `
+  --input username=jsmith --input password=demo1234 --input accountId=800002 `
+  --evidence altoroj-reviewer-replay
 ```
 
 Expected result:
