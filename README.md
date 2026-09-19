@@ -174,7 +174,10 @@ npm run replay -- \
 
 ```powershell
 $env:ROTE_HEADLESS = "false"
-npm run replay -- --capability capabilities/altoroj-challenge-account-balance/v2.json --input username=jsmith --input password=demo1234 --input accountId=888888 --handoff --evidence altoroj-handoff
+npm run replay -- `
+  --capability capabilities/altoroj-challenge-account-balance/v2.json `
+  --input username=jsmith --input password=demo1234 --input accountId=888888 `
+  --handoff --evidence altoroj-handoff
 ```
 
 The intervention request is printed before control transfers: capability, goal, the step it stopped at, what was observed, why it stopped, and the evidence reference. When Chromium shows **Operator Verification Required**, click **Operator resolved - resume automation**. Rote detects the cleared gate, verifies it independently, takes the session lease back, and resumes from the step where it stopped — same session, no re-navigation. The evidence file carries the intervention request, the ownership timeline including the human's action, and the final result.
