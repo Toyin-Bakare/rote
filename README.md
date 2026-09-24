@@ -1,6 +1,6 @@
 # Rote
 
-
+[![ci](https://github.com/Toyin-Bakare/rote/actions/workflows/ci.yml/badge.svg)](https://github.com/Toyin-Bakare/rote/actions/workflows/ci.yml)
 
 Rote uses an LLM to discover a UI workflow once, records it as a typed capability, and replays it deterministically without an LLM.
 
