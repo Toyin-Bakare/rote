@@ -1,5 +1,9 @@
 # Rote
 
+```markdown
+[![ci](https://github.com/Toyin-Bakare/rote/actions/workflows/ci.yml/badge.svg)](https://github.com/Toyin-Bakare/rote/actions/workflows/ci.yml)
+```
+
 Rote uses an LLM to discover a UI workflow once, records it as a typed capability, and replays it deterministically without an LLM.
 
 The target is a local AltoroJ legacy-banking surface with changing IDs, nested tables, an authenticated iframe, canvas-only balance output, deterministic exceptional states, and same-session human handoff.
