@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Typecheck. Fails on any type error; writes no output.
+      - run: npm run check
+
+      # 36 unit tests. No Docker, no browser, no OpenAI key needed:
+      # the adapter tests use an in-memory page and the replay tests
+      # use a fake surface. The replay-boundary test fails this job if
+      # replay-engine.ts ever imports the model.
+      - run: npm test
