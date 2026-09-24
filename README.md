@@ -1,5 +1,7 @@
 # Rote
 
+[![ci](https://github.com/Toyin-Bakare/rote/actions/workflows/ci.yml/badge.svg)](https://github.com/Toyin-Bakare/rote/actions/workflows/ci.yml)
+
 Rote uses an LLM to discover a UI workflow once, records it as a typed capability, and replays it deterministically without an LLM.
 
 The target is a local AltoroJ legacy-banking surface with changing IDs, nested tables, an authenticated iframe, canvas-only balance output, deterministic exceptional states, and same-session human handoff.
@@ -75,6 +77,39 @@ For discovery only, copy `.env.example` to `.env` and set `OPENAI_API_KEY`. Neve
 `policy.json` is the allowlist: permitted hosts, route prefixes, action types, and the risky-control pattern. Edit it to change enforcement — no code change and no rebuild. `{{targetHost}}` and `{{targetPath}}` are substituted from the resolved target so the shipped file works against any entry point.
 
 ## Demo: genuine discovery
+
+## Command-line flags
+
+Both commands run `src/cli.ts`. The first word (`discover` or `replay`) picks the mode; the flags follow `--`.
+
+### discover
+
+| Flag | Required | Default | What it does |
+|---|---|---|---|
+| `--goal "..."` | yes | — | Plain-English task for the model. |
+| `--target URL` | no | `ROTE_TARGET_URL` | Entry URL of the app. Also sets the host and route allowlist in `policy.json`. |
+| `--record name` | no | — | Save the finished run as `capabilities/<name>/v<N>.json`. Without it, discovery runs but nothing is saved. |
+| `--application name` | with `--record` | target hostname | Application label stored in the capability. |
+| `--success-text "..."` | with `--record` | — | Text that proves the goal was reached. |
+| `--success-kind` | no | `text-visible` | How to look for the success text. `text-visible` searches the DOM; `visual-text-visible` screenshots and runs OCR (use for canvas or image content). |
+| `--output-label "..."` | no | — | Label next to the value to extract as output. |
+| `--output-kind` | no | `text-near-label` | `text-near-label` reads DOM text next to the label; `visual-text-near-label` reads it by OCR. |
+| `--input name=value` | no | — | Repeatable. Example inputs for this run. Values become `{{name}}` placeholders in the capability and are redacted from every log. |
+| `--evidence name` | no | — | Write the discovery log to `evidence/<name>.json`. |
+| `--max-steps N` | no | 12 | Stop after N model steps. |
+| `--timeout-ms N` | no | 120000 | Stop after N milliseconds. |
+
+### replay
+
+| Flag | Required | Default | What it does |
+|---|---|---|---|
+| `--capability path` | yes | — | The capability file to run, e.g. `capabilities/altoroj-challenge-account-balance/v2.json`. |
+| `--input name=value` | for each placeholder | — | Repeatable. Fills the `{{name}}` placeholders. Missing required inputs block the run before the browser opens. |
+| `--target URL` | no | `ROTE_TARGET_URL` | Entry URL and policy allowlist, as for discover. |
+| `--handoff` | no | off | On a human-needed outcome, keep the browser open, hand control to a person, and resume when they clear it. Needs `ROTE_HEADLESS=false`. |
+| `--evidence name` | no | — | Write the run record to `evidence/<name>.json`. |
+
+Running `npx tsx src/cli.ts` with no mode word prints a one-screen usage summary.
 
 Runs the OpenAI-driven observe → decide → act loop against the live target and records the capability.
 
@@ -159,6 +194,8 @@ Run the same replay command against `capabilities/altoroj-challenge-account-bala
 Every blocked result writes a screenshot, a DOM snapshot of the main document and every child frame, and a metadata file to `evidence/failures/<run-id>/`, and returns its path as `evidenceRef`. Sensitive values are stripped first.
 
 ## Same-session human handoff
+
+`capabilities/altoroj-challenge-account-balance/` holds two versions. v1 declares six terminal outcomes. v2 adds two recoverable outcomes (a maintenance banner and a transaction-hold notice) after those screens were added to the demo bank. The steps are identical; only `knownOutcomes` changed. v2 is the approved version and every recorded run uses it. v1 is kept as the version history, not deleted. Superseded versions stay on disk so the diff between them is reviewable and rollback is a matter of pointing at the earlier file.
 
 **macOS / Linux (bash)**
 
