@@ -195,6 +195,8 @@ Every blocked result writes a screenshot, a DOM snapshot of the main document an
 
 ## Same-session human handoff
 
+`capabilities/altoroj-challenge-account-balance/` holds two versions. v1 declares six terminal outcomes. v2 adds two recoverable outcomes (a maintenance banner and a transaction-hold notice) after those screens were added to the demo bank. The steps are identical; only `knownOutcomes` changed. v2 is the approved version and every recorded run uses it. v1 is kept as the version history, not deleted. Superseded versions stay on disk so the diff between them is reviewable and rollback is a matter of pointing at the earlier file.
+
 **macOS / Linux (bash)**
 
 ```bash
