@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -8,7 +9,7 @@ import { describe, expect, it } from "vitest";
  * replay-boundary.test.ts: read the source as text, refuse the pattern.
  */
 
-const SRC = new URL("../src/", import.meta.url).pathname;
+const SRC = fileURLToPath(new URL("../src/", import.meta.url));
 
 async function sourceFiles(dir = SRC): Promise<string[]> {
   const out: string[] = [];
@@ -21,7 +22,7 @@ async function sourceFiles(dir = SRC): Promise<string[]> {
 }
 
 function rel(path: string): string {
-  return path.slice(SRC.length);
+  return relative(SRC, path).split("\\").join("/");
 }
 
 describe("architecture boundaries", () => {

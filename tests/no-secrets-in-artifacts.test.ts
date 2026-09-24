@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -8,7 +9,7 @@ import { describe, expect, it } from "vitest";
  * or the demo password in clear.
  */
 
-const ROOT = new URL("../", import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL("../", import.meta.url));
 
 async function textFiles(dir: string): Promise<string[]> {
   const out: string[] = [];
@@ -33,7 +34,7 @@ describe("no secrets in shipped artifacts", () => {
       for (const file of await textFiles(join(ROOT, folder))) {
         const text = await readFile(file, "utf8");
         for (const [label, re] of PATTERNS) {
-          if (re.test(text)) hits.push(`${file.slice(ROOT.length)}: ${label}`);
+          if (re.test(text)) hits.push(`${relative(ROOT, file).split("\\").join("/")}: ${label}`);
         }
       }
       expect(hits).toEqual([]);
