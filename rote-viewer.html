@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rote — runs and recipes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F6F4; --panel:#FFFFFF; --ink:#1B2430; --muted:#5F6B7A; --line:#D9DEE3;
+    --blue:#1F4E79; --blue-soft:#E4ECF4;
+    --ok:#2F7D4E; --ok-soft:#E3F1E8;
+    --outcome:#A8681B; --outcome-soft:#F7ECDA;
+    --blocked:#B23A3A; --blocked-soft:#F6E1E1;
+    --human:#8A2C6B; --human-soft:#F3E2ED;
+    font-family:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.45}
+  button{font:inherit}
+  a{color:var(--blue)}
+  .top{display:flex;align-items:center;gap:20px;padding:12px 20px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .top h1{font-size:17px;font-weight:600;margin:0 8px 0 0}
+  .seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .seg button{background:none;border:0;padding:6px 14px;cursor:pointer;color:var(--muted)}
+  .seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+  .pick{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-left:auto}
+  .pick label{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:6px 12px;background:var(--panel);cursor:pointer}
+  .pick label:hover{border-color:var(--blue)}
+  .pick input{display:none}
+  .pick .count{color:var(--muted);font-variant-numeric:tabular-nums}
+  main{display:grid;grid-template-columns:minmax(420px,48%) 1fr;height:calc(100% - 57px)}
+  .list{border-right:1px solid var(--line);overflow:auto;background:var(--panel)}
+  .detail{overflow:auto;padding:22px 28px 60px}
+  .tools{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);z-index:1}
+  .tools input,.tools select{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  .tools input{flex:1;min-width:120px}
+  table{border-collapse:collapse;width:100%}
+  th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-weight:500;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap;position:sticky;top:53px;background:var(--panel)}
+  th[data-dir="asc"]::after{content:" ↑"} th[data-dir="desc"]::after{content:" ↓"}
+  tbody tr{cursor:pointer} tbody tr:hover{background:var(--blue-soft)} tbody tr[aria-selected="true"]{background:var(--blue-soft);box-shadow:inset 3px 0 0 var(--blue)}
+  .mono{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+  .pill.success{background:var(--ok-soft);color:var(--ok)}
+  .pill.business_outcome{background:var(--outcome-soft);color:var(--outcome)}
+  .pill.blocked{background:var(--blocked-soft);color:var(--blocked)}
+  .pill.other{background:#EEF0F2;color:var(--muted)}
+  .pill.handoff{background:var(--human-soft);color:var(--human)}
+  .empty{padding:48px 28px;color:var(--muted);max-width:52ch}
+  .empty b{color:var(--ink);font-weight:500}
+  .detail h2{font-size:20px;font-weight:600;margin:0 0 4px}
+  .detail .sub{color:var(--muted);margin:0 0 18px;word-break:break-all}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin:0 0 16px}
+  .card h3{font-size:13px;font-weight:500;color:var(--muted);margin:0 0 10px}
+  .result{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .result .big{font-size:30px;font-weight:600;font-variant-numeric:tabular-nums}
+  .result.success .big{color:var(--ok)} .result.business_outcome .big{color:var(--outcome)} .result.blocked .big{color:var(--blocked)}
+  .kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 18px}
+  .kv dt{color:var(--muted)} .kv dd{margin:0;word-break:break-word}
+  .kv dd.redacted{color:var(--blocked)}
+  /* timeline: automation on the left rail, human on the right rail */
+  .tl{position:relative;margin:6px 0 0;padding:0;list-style:none}
+  .tl::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)}
+  .tl li{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;margin:0 0 10px;align-items:start}
+  .tl .ev{border:1px solid var(--line);border-radius:6px;padding:8px 12px;background:#fff}
+  .tl .ev .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
+  .tl .ev .e{font-weight:500}
+  .tl .ev .d{color:var(--muted);font-size:13px}
+  .tl li.automation .ev{grid-column:1;border-left:3px solid var(--blue)}
+  .tl li.human .ev{grid-column:2;border-right:3px solid var(--human)}
+  .rails{display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:12px;color:var(--muted);margin-bottom:6px}
+  .rails span:last-child{text-align:right}
+  table.plain th{top:0}
+  td.rec{white-space:nowrap}
+  td.rec .k{display:block;font-size:12px;color:var(--muted)}
+  .steps td:first-child{white-space:nowrap;color:var(--muted)}
+  .shot{max-width:100%;border:1px solid var(--line);border-radius:6px;display:block;margin-top:8px}
+  .links a{margin-right:14px}
+  details summary{cursor:pointer;color:var(--muted)}
+  pre{background:#F0F2F4;border-radius:6px;padding:12px;overflow:auto;font-size:12px;line-height:1.4}
+  .order{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--blue-soft);color:var(--blue);text-align:center;line-height:22px;font-size:12px;font-weight:600;margin-right:6px}
+  code{background:#EEF0F2;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  main.full{grid-template-columns:1fr} main.full .list{display:none}
+  @media (max-width:900px){main{grid-template-columns:1fr;height:auto}.list{max-height:45vh}}
+  @media (prefers-reduced-motion:no-preference){.tl .ev{transition:box-shadow .15s}}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Rote</h1>
+  <div class="seg" role="tablist">
+    <button role="tab" aria-pressed="true" data-view="runs">Runs</button>
+    <button role="tab" aria-pressed="false" data-view="recipes">Recipes</button>
+    <button role="tab" aria-pressed="false" data-view="policy">Policy</button>
+  </div>
+  <div class="pick">
+    <label>Open evidence folder <input type="file" id="pickEvidence" webkitdirectory multiple><span class="count" id="cntEvidence"></span></label>
+    <label>Open capabilities folder <input type="file" id="pickCaps" webkitdirectory multiple><span class="count" id="cntCaps"></span></label>
+    <label>Open policy.json <input type="file" id="pickPolicy" accept=".json"><span class="count" id="cntPolicy"></span></label>
+  </div>
+</header>
+<main>
+  <section class="list" id="list"></section>
+  <section class="detail" id="detail"><div class="empty"><b>Pick a folder to start.</b><br>Open <code>evidence/</code> to browse runs, or <code>capabilities/</code> to browse recipes. Everything stays on this machine; nothing is uploaded.</div></section>
+</main>
+<script>
+(function(){
+  const $=s=>document.querySelector(s);
+  const state={view:"runs",runs:[],others:[],caps:[],policy:null,policyName:"",files:new Map(),sortKey:"when",sortDir:"desc",filter:"",status:"all",selected:null};
+
+  // ---------- loading ----------
+  $("#pickEvidence").addEventListener("change",e=>loadEvidence([...e.target.files]));
+  $("#pickCaps").addEventListener("change",e=>loadCaps([...e.target.files]));
+  $("#pickPolicy").addEventListener("change",async e=>{ const f=e.target.files[0]; if(!f) return; try{ state.policy=JSON.parse(await f.text()); state.policyName=f.name; }catch(err){ state.policy={error:"Could not parse "+f.name}; }
+    $("#cntPolicy").textContent="loaded"; state.view="policy"; document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.view==="policy")); render(); });
+  document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
+    document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    state.view=b.dataset.view; state.selected=null; render();
+  }));
+
+  function relPath(f){ const p=f.webkitRelativePath||f.name; return p.split("/").slice(1).join("/"); } // strip picked folder name
+  async function loadEvidence(files){
+    state.files=new Map(); state.runs=[]; state.others=[];
+    for(const f of files){ state.files.set(relPath(f),f); }
+    const jsons=files.filter(f=>f.name.endsWith(".json") && !relPath(f).startsWith("failures/"));
+    for(const f of jsons){
+      let d; try{ d=JSON.parse(await f.text()); }catch(err){ continue; }
+      const rec={file:f.name,path:relPath(f),data:d};
+      if(d.runType==="deterministic-replay" || d.runType==="openai-guided-discovery"){
+        rec.kind=d.runType==="deterministic-replay"?"replay":"discovery";
+        rec.capability=(d.capability||d.recordedCapability||"").split(/[\\/]/).slice(-2).join("/").replace(/\.json$/,"");
+        const r=d.result;
+        rec.status= typeof r==="string"? r : (r&&r.status)||"unknown";
+        rec.code= r&&typeof r==="object" ? (r.code||r.errorCode||"") : (d.stopReason||"");
+        rec.handoff=!!d.interventionRequest;
+        rec.when=d.runId? d.runId.replace(/^(replay|discovery)-/,"").replace(/T(\d\d)-(\d\d)-(\d\d)-(\d+)Z/,"T$1:$2:$3.$4Z") : "";
+        rec.whenLabel=rec.when? rec.when.replace("T"," ").replace(/\.\d+Z$/,""):"";
+        state.runs.push(rec);
+      } else { rec.kind="other"; rec.status=d.runType||"record"; state.others.push(rec); }
+    }
+    $("#cntEvidence").textContent=state.runs.length+" runs";
+    state.view="runs"; document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.view==="runs"));
+    state.selected=null; render();
+  }
+  async function loadCaps(files){
+    state.caps=[];
+    for(const f of files.filter(f=>f.name.endsWith(".json"))){
+      let d; try{ d=JSON.parse(await f.text()); }catch(err){ continue; }
+      const parts=relPath(f).split("/");
+      state.caps.push({path:relPath(f),folder:parts.length>1?parts[parts.length-2]:"",file:f.name,data:d,
+        name:d.name||parts[parts.length-2]||f.name,version:d.version||"",steps:(d.steps||[]).length,outcomes:(d.knownOutcomes||[]).length});
+    }
+    $("#cntCaps").textContent=state.caps.length+" files";
+    state.view="recipes"; document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.view==="recipes"));
+    state.selected=null; render();
+  }
+
+  // ---------- rendering ----------
+  const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const pill=(s,extra="")=>`<span class="pill ${["success","business_outcome","blocked"].includes(s)?s:"other"}">${esc(s.replace("_"," "))}</span>${extra}`;
+
+  const kindLabels={"artifact-human-review":"human review of a recipe","repository-secret-scan":"secret scan","discovery-stop-condition-test":"discovery stopping rule","challenge-surface-summary":"demo bank summary"};
+  function kindLabel(d){ return kindLabels[d.runType]|| (d.requirements?"demo bank verification": d.schemaVersion?"example recipe":"record"); }
+  function oneLine(d){
+    if(d.runType==="artifact-human-review") return (d.changes||[]).length+" changes after discovery, reason logged";
+    if(d.runType==="repository-secret-scan") return d.result||"";
+    if(d.runType==="discovery-stop-condition-test") return "stops on "+d.condition;
+    if(d.requirements) return Object.values(d.requirements).filter(v=>v==="met").length+" of "+Object.keys(d.requirements).length+" hostile-surface requirements met";
+    if(d.runType==="challenge-surface-summary") return "how the demo bank is driven; points to the run logs";
+    if(d.schemaVersion) return "example capability shape";
+    return d.result||"";
+  }
+  function render(){ document.querySelector("main").classList.toggle("full",state.view==="policy"); state.view==="runs"? renderRuns(): state.view==="recipes"? renderRecipes(): renderPolicy(); }
+
+  function renderRuns(){
+    const list=$("#list");
+    if(!state.runs.length){ list.innerHTML=""; $("#detail").innerHTML=`<div class="empty"><b>No runs loaded.</b><br>Open the <code>evidence/</code> folder. The viewer reads every run record and matches blocked runs to their screenshots in <code>evidence/failures/</code>.</div>`; return; }
+    let rows=state.runs.filter(r=> (state.status==="all"||r.status===state.status) && (!state.filter || (r.file+" "+r.capability+" "+r.code+" "+r.kind).toLowerCase().includes(state.filter)));
+    rows.sort((a,b)=>{ const k=state.sortKey; const va=(a[k]??"")+"", vb=(b[k]??"")+""; return (va<vb?-1:va>vb?1:0)*(state.sortDir==="asc"?1:-1); });
+    const th=(k,l)=>`<th data-key="${k}" ${state.sortKey===k?`data-dir="${state.sortDir}"`:""}>${l}</th>`;
+    list.innerHTML=`
+      <div class="tools">
+        <input id="q" placeholder="Filter by file, capability, code" value="${esc(state.filter)}">
+        <select id="st"><option value="all">All statuses</option><option value="success">success</option><option value="business_outcome">business outcome</option><option value="blocked">blocked</option></select>
+      </div>
+      <table><thead><tr>${th("file","Record")}${th("status","Result")}${th("capability","Recipe")}${th("whenLabel","When")}</tr></thead>
+      <tbody>${rows.map(r=>`<tr data-path="${esc(r.path)}" aria-selected="${state.selected===r.path}">
+        <td class="rec">${esc(r.file.replace(/^altoroj-/,"").replace(/\.json$/,""))}<span class="k">${r.kind}</span></td>
+        <td>${pill(r.status)}${r.code?`<div class="mono">${esc(r.code)}</div>`:""}${r.handoff?`<div><span class="pill handoff">handoff</span></div>`:""}</td>
+        <td class="mono">${esc(r.capability.replace("altoroj-","").replace("-account-balance","").replace("/"," "))}</td>
+        <td class="mono">${esc(r.whenLabel.replace(/^\d{4}-/,""))}</td></tr>`).join("")}</tbody></table>
+      ${state.others.length?`<div class="tools" style="position:static;border-top:1px solid var(--line)"><span style="color:var(--muted)">Reviews and checks — not runs, but records a reviewer will ask for</span></div>
+      <table><tbody>${state.others.map(o=>`<tr data-path="${esc(o.path)}" aria-selected="${state.selected===o.path}"><td class="rec">${esc(o.file.replace(/^altoroj-/,"").replace(/\.json$/,""))}<span class="k">${esc(kindLabel(o.data))}</span></td><td>${esc(oneLine(o.data))}</td></tr>`).join("")}</tbody></table>`:""}`;
+    $("#st").value=state.status;
+    $("#q").addEventListener("input",e=>{state.filter=e.target.value.toLowerCase();renderRuns();});
+    $("#st").addEventListener("change",e=>{state.status=e.target.value;renderRuns();});
+    list.querySelectorAll("th").forEach(h=>h.addEventListener("click",()=>{const k=h.dataset.key; state.sortDir= state.sortKey===k && state.sortDir==="asc"?"desc":"asc"; state.sortKey=k; renderRuns();}));
+    list.querySelectorAll("tbody tr,[data-path]").forEach(el=>el.addEventListener("click",ev=>{ev.preventDefault(); state.selected=el.dataset.path; renderRuns(); showRun(el.dataset.path);}));
+    if(state.selected) showRun(state.selected); else $("#detail").innerHTML=`<div class="empty"><b>${state.runs.length} runs loaded.</b><br>Select one to see its result, inputs, steps, timeline and any failure capture.</div>`;
+  }
+
+  function showRun(path){
+    const rec=[...state.runs,...state.others].find(r=>r.path===path); if(!rec) return;
+    const d=rec.data, r=d.result, det=$("#detail");
+    if(rec.kind==="other"){ det.innerHTML=renderOther(rec); return; }
+    let html=`<h2>${esc(rec.file.replace(/\.json$/,""))}</h2><p class="sub">${esc(d.runType)} &nbsp;·&nbsp; ${esc(d.capability||d.recordedCapability||"")} &nbsp;·&nbsp; ${esc(d.target||"")}</p>`;
+    // result
+    if(typeof r==="object"&&r){
+      const big = r.status==="success"? (r.outputs&&Object.keys(r.outputs).length? Object.entries(r.outputs).map(([k,v])=>`${esc(k)} ${esc(v)}`).join(", "):"success")
+                : r.status==="business_outcome"? esc(r.code) : esc(r.errorCode||r.code||"blocked");
+      html+=`<div class="card"><h3>Result</h3><div class="result ${esc(r.status)}"><span class="big">${big}</span>${pill(r.status)}</div>
+        ${r.detail?`<p style="margin:10px 0 0">${esc(r.detail)}</p>`:""}
+        ${r.status==="blocked"?`<dl class="kv" style="margin-top:12px"><dt>Stopped at</dt><dd>${esc(r.stepId)} (#${esc(r.stepIndex)})</dd><dt>Expected</dt><dd>${esc(r.expected)}</dd><dt>Observed</dt><dd>${esc(r.observed)}</dd></dl>`:""}
+        ${r.recoveries?`<p style="margin:10px 0 0"><span class="pill business_outcome">recovered</span> ${r.recoveries.map(x=>`${esc(x.code)} ×${x.attempts} — ${esc(x.detail)}`).join("<br>")}</p>`:""}
+        </div>`;
+    } else if(r!==undefined){ html+=`<div class="card"><h3>Result</h3><div class="result"><span class="big">${esc(r)}</span></div>${d.stopReason?`<p>${esc(d.stopReason)}</p>`:""}</div>`; }
+    // inputs / goal
+    if(d.inputs){ html+=`<div class="card"><h3>Inputs</h3><dl class="kv">${Object.entries(d.inputs).map(([k,v])=>`<dt>${esc(k)}</dt><dd class="${v==="[REDACTED]"?"redacted":""}">${esc(v)}</dd>`).join("")}</dl></div>`; }
+    if(d.goal){ html+=`<div class="card"><h3>Goal</h3><p style="margin:0">${esc(d.goal)}</p>${d.model?`<p class="mono" style="margin:8px 0 0">model ${esc(d.model)}</p>`:""}</div>`; }
+    // intervention
+    const iv=d.interventionRequest;
+    if(iv){ html+=`<div class="card" style="border-left:3px solid var(--human)"><h3>Intervention request — what the person was handed</h3><dl class="kv"><dt>Reason</dt><dd>${esc(iv.reason)}</dd><dt>Stopped at</dt><dd>${esc(iv.stoppedAtStep&&iv.stoppedAtStep.id)} (#${esc(iv.stoppedAtStep&&iv.stoppedAtStep.index)})</dd><dt>Observed</dt><dd>${esc(iv.observed)}</dd><dt>Must clear</dt><dd>${esc(iv.resolutionCheckpoint)}</dd><dt>Evidence</dt><dd class="mono">${esc(iv.evidenceRef)}</dd></dl></div>`; }
+    // steps
+    if(Array.isArray(d.steps)&&d.steps.length&&typeof d.steps[0]==="object"){
+      html+=`<div class="card"><h3>Discovery steps — action and the model's reason</h3><table class="steps"><tbody>${d.steps.map(s=>`<tr><td>${esc(s.index)}</td><td><b>${esc(s.action)}</b></td><td>${esc(s.reason)}</td></tr>`).join("")}</tbody></table></div>`;
+    } else if(d.stepSequence){ html+=`<div class="card"><h3>Steps run</h3><p style="margin:0" class="mono">${d.stepSequence.map(esc).join(" → ")}</p></div>`; }
+    // timeline
+    const tl=d.session&&d.session.timeline;
+    if(tl&&tl.length){ html+=`<div class="card"><h3>Session timeline — who held the browser</h3><div class="rails"><span>automation</span><span>human</span></div><ul class="tl">${tl.map(e=>`<li class="${esc(e.actor)}"><div class="ev"><div class="t">${esc(e.at.replace("T"," ").replace("Z",""))}</div><div class="e">${esc(e.event)}</div><div class="d">${esc(e.detail)}</div></div></li>`).join("")}</ul></div>`; }
+    // failure capture
+    const ref=(r&&r.evidenceRef)||(iv&&iv.evidenceRef)||d.evidenceRef;
+    if(ref){
+      const base=ref.replace(/^evidence\//,""); const png=state.files.get(base+".png"), htm=state.files.get(base+".html"), meta=state.files.get(base+".json");
+      html+=`<div class="card"><h3>Capture at the moment it stopped</h3><p class="mono" style="margin:0 0 8px">${esc(ref)}</p><div class="links">${htm?`<a href="${URL.createObjectURL(htm)}" target="_blank">Open page snapshot</a>`:""}${meta?`<a href="${URL.createObjectURL(meta)}" target="_blank">Open metadata</a>`:""}</div>${png?`<img class="shot" src="${URL.createObjectURL(png)}" alt="Screenshot at stop">`:`<p class="mono">Screenshot not found in the opened folder.</p>`}</div>`;
+    }
+    html+=`<details><summary>Raw JSON</summary><pre>${esc(JSON.stringify(d,null,2))}</pre></details>`;
+    det.innerHTML=html;
+  }
+
+  function renderOther(rec){
+    const d=rec.data; let h=`<h2>${esc(rec.file.replace(/\.json$/,""))}</h2><p class="sub">${esc(kindLabel(d))}</p>`;
+    const raw=`<details><summary>Raw JSON</summary><pre>${esc(JSON.stringify(d,null,2))}</pre></details>`;
+    if(d.runType==="artifact-human-review"){
+      h+=`<div class="card"><h3>What was reviewed</h3><dl class="kv"><dt>Recipe</dt><dd class="mono">${esc(d.artifact)}</dd><dt>From discovery</dt><dd class="mono">${esc(d.sourceDiscovery)}</dd></dl></div>`;
+      h+=`<div class="card"><h3>Changes a person made before approving it</h3><ol style="margin:0;padding-left:22px">${(d.changes||[]).map(c=>`<li style="margin-bottom:8px">${esc(c)}</li>`).join("")}</ol></div>`;
+      h+=`<div class="card"><h3>Why</h3><p style="margin:0">${esc(d.reason)}</p></div>`;
+    } else if(d.runType==="repository-secret-scan"){
+      h+=`<div class="card"><h3>Result</h3><div class="result ${d.result&&d.result.startsWith("NO_")?"success":"blocked"}"><span class="big" style="font-size:20px">${esc(d.result)}</span></div></div>`;
+      h+=`<div class="card"><h3>What was scanned for</h3><ul style="margin:0;padding-left:22px">${(d.patterns||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul><dl class="kv" style="margin-top:12px"><dt>Scope</dt><dd>${esc(d.scope)}</dd><dt>Note</dt><dd>${esc(d.note)}</dd></dl></div>`;
+    } else if(d.runType==="discovery-stop-condition-test"){
+      h+=`<div class="card"><h3>Stopping rule: ${esc(d.condition)}</h3><dl class="kv"><dt>Setting</dt><dd class="mono">${esc(JSON.stringify(d.configuration))}</dd><dt>Result</dt><dd>${esc(d.result)}</dd><dt>Tested in</dt><dd class="mono">${esc(d.test)}</dd></dl></div>`;
+    } else if(d.requirements){
+      h+=`<div class="card"><h3>Hostile-surface requirements</h3><table><tbody>${Object.entries(d.requirements).map(([k,v])=>`<tr><td>${esc(k.replace(/([A-Z])/g," $1").toLowerCase())}</td><td>${pill(v==="met"?"success":"blocked")}</td></tr>`).join("")}</tbody></table></div>`;
+      h+=`<div class="card"><h3>What was verified on the live page</h3><dl class="kv">${Object.entries(d.verification||{}).map(([k,v])=>`<dt>${esc(k.replace(/([A-Z])/g," $1").toLowerCase())}</dt><dd class="mono">${esc(String(v))}</dd>`).join("")}</dl></div>`;
+      h+=`<div class="card"><h3>Result</h3><p style="margin:0">${esc(d.result)}</p></div>`;
+    } else if(d.runType==="challenge-surface-summary"){
+      h+=`<div class="card"><h3>How the demo bank is driven</h3><dl class="kv"><dt>Recipe</dt><dd class="mono">${esc(d.capability)}</dd><dt>Steps</dt><dd>${esc(d.recordedSteps)}</dd><dt>Frame</dt><dd class="mono">${esc(d.discovery&&d.discovery.frameSelector)}</dd><dt>Model sees</dt><dd>${esc(d.discovery&&d.discovery.modelObservation)}</dd></dl></div>`;
+      h+=`<div class="card"><h3>Prefix selectors used only as last resort</h3><p style="margin:0">${((d.discovery&&d.discovery.prefixSelectorsUsedAsFallbacks)||[]).map(x=>`<code>${esc(x)}</code>`).join(" ")}</p><p style="margin:8px 0 0;color:var(--muted)">${esc(d.discovery&&d.discovery.note)}</p></div>`;
+      const r=d.replay||{}; h+=`<div class="card"><h3>Replay needs</h3><dl class="kv"><dt>OpenAI key</dt><dd>${r.openAiKeyPresent?"present":"not present"}</dd><dt>Model</dt><dd>${r.modelRequiredForReplay?"required":"not required"}</dd><dt>Online OCR</dt><dd>${r.onlineOcrServiceRequired?"required":"not required"}</dd>${r.extraction?`<dt>Reads balance by</dt><dd><code>${esc(r.extraction.kind)}</code> near “${esc(r.extraction.label)}” on <code>${esc(r.extraction.visualCss)}</code> in <code>${esc(r.extraction.frameCss)}</code>, ${esc(r.extraction.engine)}</dd>`:""}</dl></div>`;
+      if(d.runLogs) h+=`<div class="card"><h3>Authoritative run logs</h3><dl class="kv">${Object.entries(d.runLogs).map(([k,v])=>`<dt>${esc(k)}</dt><dd class="mono">${esc(v)}</dd>`).join("")}</dl></div>`;
+    } else if(d.schemaVersion){
+      h+=`<div class="card"><p style="margin:0">An example of the recipe shape. Open the capabilities folder and use the Recipes view to browse the real ones.</p></div>`;
+    }
+    return h+raw;
+  }
+
+  function renderPolicy(){
+    $("#list").innerHTML="";
+    const p=state.policy;
+    if(!p){ $("#detail").innerHTML=`<div class="empty"><b>No policy loaded.</b><br>Open <code>policy.json</code> from the repo root. It is the safety rule set every action is checked against, in discovery and in replay.</div>`; return; }
+    if(p.error){ $("#detail").innerHTML=`<div class="empty">${esc(p.error)}</div>`; return; }
+    const list=(a,note)=>`<ul style="margin:0;padding-left:22px">${(a||[]).map(x=>`<li><code>${esc(x)}</code>${/\{\{targetHost\}\}/.test(x)?" — filled in from the target URL's host, e.g. localhost:8083":/\{\{targetPath\}\}/.test(x)?" — filled in from the target URL's path, e.g. /altoromutual/":""}</li>`).join("")}</ul>${note?`<p style="margin:8px 0 0;color:var(--muted)">${note}</p>`:""}`;
+    const risky=(p.riskyControlPattern||"").split("|").filter(Boolean);
+    $("#detail").innerHTML=`<h2>Safety policy <span class="mono" style="font-weight:400">${esc(state.policyName)}</span></h2>
+      <p class="sub">Checked in <code>src/safety/actuator.ts</code> before every action. Any rule that says no stops the run. The model never sees this file.</p>
+      <div class="card"><h3>1. Which websites the browser may go to</h3>${list(p.allowedHosts,"A navigate action to any other host is blocked.")}</div>
+      <div class="card"><h3>2. Which pages on that site</h3>${list(p.allowedRoutePrefixes,"A navigate action outside these path prefixes is blocked.")}</div>
+      <div class="card"><h3>3. Which kinds of action are allowed at all</h3>${list(p.allowedActions,"Anything else the model or the recipe asks for is refused.")}</div>
+      <div class="card"><h3>4. Words that make a click risky</h3><p style="margin:0 0 8px">${risky.map(w=>`<span class="pill blocked" style="margin:0 6px 6px 0">${esc(w)}</span>`).join("")}</p><p style="margin:0;color:var(--muted)">If a control's name matches any of these, the click is blocked and the run stops with evidence. It is not flagged and continued. The list is broad on purpose: better to stop a harmless run than allow a harmful one.</p></div>
+      <details><summary>Raw JSON</summary><pre>${esc(JSON.stringify(p,null,2))}</pre></details>`;
+  }
+
+  function renderRecipes(){
+    const list=$("#list");
+    if(!state.caps.length){ list.innerHTML=""; $("#detail").innerHTML=`<div class="empty"><b>No recipes loaded.</b><br>Open the <code>capabilities/</code> folder. Each file is one version of one capability.</div>`; return; }
+    const rows=[...state.caps].sort((a,b)=>(a.folder+a.file).localeCompare(b.folder+b.file));
+    list.innerHTML=`<table class="plain"><thead><tr><th>Capability</th><th>Version</th><th>Steps</th><th>Outcomes</th></tr></thead><tbody>${rows.map(c=>`<tr data-path="${esc(c.path)}" aria-selected="${state.selected===c.path}"><td>${esc(c.folder||c.name)}</td><td class="mono">${esc(c.file.replace(".json",""))}</td><td class="mono">${c.steps}</td><td class="mono">${c.outcomes}</td></tr>`).join("")}</tbody></table>`;
+    list.querySelectorAll("tbody tr").forEach(el=>el.addEventListener("click",()=>{state.selected=el.dataset.path; renderRecipes(); showCap(el.dataset.path);}));
+    if(state.selected) showCap(state.selected); else $("#detail").innerHTML=`<div class="empty"><b>${state.caps.length} recipe files loaded.</b><br>Select one to see its steps, how each control is found, and the outcomes it knows.</div>`;
+  }
+
+  function showCap(path){
+    const c=state.caps.find(x=>x.path===path); if(!c) return; const d=c.data;
+    const ctl=a=>{ const k=a.control||{}; const bits=[];
+      if(k.role) bits.push(`role <code>${esc(k.role)}</code>`); if(k.accessibleName) bits.push(`name <code>${esc(k.accessibleName)}</code>`); if(k.label) bits.push(`label <code>${esc(k.label)}</code>`); if(k.text) bits.push(`text <code>${esc(k.text)}</code>`);
+      if(k.nearbyText) bits.push(`near “${esc(k.nearbyText)}”`); if(k.fallbackCss) bits.push(`css <code>${esc(k.fallbackCss)}</code>`); if(k.frameCss) bits.push(`in frame <code>${esc(k.frameCss)}</code>`);
+      return bits.join(" · ")||(a.url?`<code>${esc(a.url)}</code>`:a.milliseconds?`${a.milliseconds} ms`:""); };
+    let html=`<h2>${esc(d.name||c.name)} <span class="mono" style="font-weight:400">v${esc(d.version)}</span></h2><p class="sub">${esc(d.description||"")}</p>`;
+    html+=`<div class="card"><h3>Inputs</h3><dl class="kv">${(d.inputs||[]).map(i=>`<dt>${esc(i.name)}</dt><dd>${esc(i.type||"")}${i.required?" · required":""}${i.sensitive?" · <span class='pill blocked'>sensitive</span>":""}</dd>`).join("")||"<dd>none</dd>"}</dl></div>`;
+    html+=`<div class="card"><h3>Steps — what to do, and how each control is found</h3><table class="steps"><tbody>${(d.steps||[]).map((s,i)=>{const a=s.action||{};return `<tr><td>${esc(s.id||i+1)}</td><td><b>${esc(a.type)}</b>${a.value!==undefined?` <code>${esc(a.value)}</code>`:""}<div class="mono" style="white-space:normal">${esc(s.description||"")}</div></td><td>${ctl(a)}${s.checkpoint?`<div class="mono">then expect <code>${esc(s.checkpoint.kind)}</code> “${esc(s.checkpoint.expected)}”</div>`:""}</td></tr>`;}).join("")}</tbody></table></div>`;
+    const ko=d.knownOutcomes||[];
+    html+=`<div class="card"><h3>Known outcomes — checked in this order, first match wins</h3>${ko.length?`<table><thead><tr><th style="position:static">#</th><th style="position:static">Code</th><th style="position:static">Kind</th><th style="position:static">Looks for</th><th style="position:static">Then</th></tr></thead><tbody>${ko.map((o,i)=>`<tr><td><span class="order">${i+1}</span></td><td><b>${esc(o.code)}</b><div class="mono" style="white-space:normal">${esc(o.description||"")}</div></td><td>${pill(o.resultType==="recoverable"?"success":o.resultType)}<div class="mono">${esc(o.resultType)}</div></td><td><code>${esc(o.checkpoint&&o.checkpoint.kind)}</code> “${esc(o.checkpoint&&o.checkpoint.expected)}”</td><td>${o.recovery?`${esc(o.recovery.action&&o.recovery.action.type||"dismiss")}, up to ${esc(o.recovery.maxAttempts)}×`:o.resultType==="blocked"?"stop, save evidence":"report code"}</td></tr>`).join("")}</tbody></table>`:`<p class="mono" style="margin:0">None declared. Anything but the success text fails closed.</p>`}</div>`;
+    if(d.success) html+=`<div class="card"><h3>Success check</h3><p style="margin:0"><code>${esc(d.success.kind)}</code> “${esc(d.success.expected)}”</p></div>`;
+    if(d.outputs&&d.outputs.length) html+=`<div class="card"><h3>Outputs</h3>${d.outputs.map(o=>`<p style="margin:0 0 6px"><b>${esc(o.name)}</b> <span class="mono">${esc(o.type)}${o.required?" · required":""}</span>${o.extraction?`<br><span class="mono">${esc(o.extraction.kind)} near “${esc(o.extraction.label)}”${o.extraction.frameCss?` in <code>${esc(o.extraction.frameCss)}</code>`:""}${o.extraction.visualCss?` on <code>${esc(o.extraction.visualCss)}</code>`:""}</span>`:""}</p>`).join("")}</div>`;
+    html+=`<details><summary>Raw JSON</summary><pre>${esc(JSON.stringify(d,null,2))}</pre></details>`;
+    $("#detail").innerHTML=html;
+  }
+})();
+</script>
+</body>
+</html>
